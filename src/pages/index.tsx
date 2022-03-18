@@ -1,11 +1,14 @@
 import * as React from 'react'
-import { Button } from '@chakra-ui/react'
+import { Container } from '@chakra-ui/react'
+import { TopBar } from '../components/TopBar'
+import { NFTElement } from '../components/NFTElement'
 
 const Index = () => {
   return (
-    <div>
-      <Button colorScheme='blue'>Button</Button>
-    </div>
+    <Container maxW='container.md'>
+      <TopBar />
+      <NFTElement />
+    </Container>
   )
 }
 
