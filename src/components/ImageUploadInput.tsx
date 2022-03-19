@@ -1,4 +1,4 @@
-import { Button, Text, Box } from '@chakra-ui/react'
+import { Button, Text, Box, Flex } from '@chakra-ui/react'
 import * as React from 'react'
 import { useDropzone } from 'react-dropzone'
 
@@ -7,8 +7,11 @@ interface ImageUploadInputProps {
   onChange: (value: string | ArrayBuffer | null) => void
 }
 
-export const ImageUploadInput: React.FC<ImageUploadInputProps> = ({ value, onChange }) => {
-  const onDrop = React.useCallback(acceptedFiles => {
+export const ImageUploadInput: React.FC<ImageUploadInputProps> = ({
+  value,
+  onChange,
+}) => {
+  const onDrop = acceptedFiles => {
     if (acceptedFiles.length > 0) {
       const fr = new FileReader()
       fr.onload = function () {
@@ -16,7 +19,8 @@ export const ImageUploadInput: React.FC<ImageUploadInputProps> = ({ value, onCha
       }
       fr.readAsArrayBuffer(acceptedFiles[0])
     }
-  }, [])
+  }
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
 
   const image = React.useMemo(() => {
@@ -27,12 +31,20 @@ export const ImageUploadInput: React.FC<ImageUploadInputProps> = ({ value, onCha
   }, [value])
 
   return (
-    <div>
-      <Box {...getRootProps()} bg='gray.100' borderRadius={6} padding={2}>
+    <Box>
+      <Box
+        {...getRootProps()}
+        bg='gray.100'
+        borderRadius={6}
+        padding={2}
+        height='100%'
+        display='flex'
+        alignItems='center'
+      >
         <input {...getInputProps()} />
         {image && <img src={image} />}
         {!image && (
-          <Box>
+          <Box w='100%'>
             {isDragActive ? (
               <Text fontSize='sm' width='100%' align='center'>
                 Drop the files here ...
@@ -50,6 +62,6 @@ export const ImageUploadInput: React.FC<ImageUploadInputProps> = ({ value, onCha
           Remove Image
         </Button>
       )}
-    </div>
+    </Box>
   )
 }
