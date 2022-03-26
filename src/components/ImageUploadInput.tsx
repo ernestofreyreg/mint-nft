@@ -5,11 +5,13 @@ import { useDropzone } from 'react-dropzone'
 interface ImageUploadInputProps {
   value: string | ArrayBuffer | null
   onChange: (value: string | ArrayBuffer | null) => void
+  readOnly?: boolean
 }
 
 export const ImageUploadInput: React.FC<ImageUploadInputProps> = ({
   value,
   onChange,
+  readOnly,
 }) => {
   const onDrop = acceptedFiles => {
     if (acceptedFiles.length > 0) {
@@ -21,7 +23,12 @@ export const ImageUploadInput: React.FC<ImageUploadInputProps> = ({
     }
   }
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    multiple: false,
+    accept: 'image/*',
+    disabled: readOnly,
+  })
 
   const image = React.useMemo(() => {
     if (value) {
@@ -57,7 +64,7 @@ export const ImageUploadInput: React.FC<ImageUploadInputProps> = ({
           </Box>
         )}
       </Box>
-      {image && (
+      {image && !readOnly && (
         <Button size='xs' onClick={() => onChange(null)}>
           Remove Image
         </Button>

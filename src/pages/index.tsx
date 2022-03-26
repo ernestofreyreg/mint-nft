@@ -1,5 +1,6 @@
 import * as React from 'react'
 import {
+  Box,
   Button,
   Container,
   StackDivider,
@@ -11,12 +12,18 @@ import { NFTElement } from '../components/NFTElement'
 import { NFTElementData } from '../types'
 import { lensIndex, set, remove, append, dissoc } from 'ramda'
 import axios from 'axios'
+import MintNFTContract from '../MintNFT.json'
+import { useNetwork, useSigner } from 'wagmi'
+import { ContractFactory } from 'ethers'
 
 const Index = () => {
   const [elements, setElements] = React.useState<NFTElementData[]>([])
   const [isMinting, setIsMinting] = React.useState(false)
   const [progress, setProgress] = React.useState({ total: 0, current: 0 })
   const toast = useToast()
+  const [contractAddress, setContractAddress] = React.useState(null)
+  const [, getSigner] = useSigner()
+  const [{ data: networkData }] = useNetwork()
 
   const handleAddNFT = () => {
     setElements(
@@ -34,8 +41,33 @@ const Index = () => {
 
   const handleMint = async () => {
     try {
-      setIsMinting(true)
+      if (elements.length === 0) {
+        return toast({
+          title: 'No NFTs to mint',
+          description: 'Please add at least one NFT',
+          status: 'info',
+          duration: 5000,
+          isClosable: true,
+          position: 'top',
+        })
+      }
 
+      const signer = await getSigner()
+      if (!signer) {
+        return toast({
+          title: 'No signer',
+          description: 'Please connect to a wallet',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+          position: 'top',
+        })
+      }
+
+      setIsMinting(true)
+      setProgress({ total: 0, current: 0 })
+
+      // Upload files
       const formData = new FormData()
       elements.forEach(element => {
         formData.append('files', new Blob([element.image]))
@@ -50,7 +82,27 @@ const Index = () => {
           setProgress({ total: event.total, current: event.loaded }),
       })
 
-      alert(JSON.stringify(response.data))
+      // Mint NFTs
+      const MintNFT = new ContractFactory(
+        MintNFTContract.abi,
+        MintNFTContract.bytecode,
+        signer,
+      )
+
+      const nft = await MintNFT.deploy(
+        `https://ipfs.io/ipfs/${response.data.cid}/nft-`,
+        elements.map(element => element.quantity),
+      )
+      await nft.deployed()
+      toast({
+        title: 'Success',
+        description: `Your NFT Collection was minted with ${elements.length} NFTs`,
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+        position: 'top',
+      })
+      setContractAddress(nft.address)
     } catch (ex) {
       toast({
         title: 'Error',
@@ -65,24 +117,43 @@ const Index = () => {
     }
   }
 
+  const handleNewCollection = () => {
+    setElements([])
+    setContractAddress(null)
+    setIsMinting(false)
+  }
+
   return (
     <Container maxW='container.md'>
-      <TopBar onMint={handleMint} isMinting={isMinting} progress={progress} />
+      <TopBar
+        onMint={handleMint}
+        isMinting={isMinting}
+        progress={progress}
+        contractAddress={contractAddress}
+        onNewCollection={handleNewCollection}
+      />
       <VStack divider={<StackDivider borderColor='gray.200' />}>
         {elements.map((item, index) => (
           <NFTElement
             key={index}
             value={item}
+            index={index}
+            isTestnet={networkData?.chain?.testnet}
             onChange={(value: NFTElementData) => {
               setElements(set(lensIndex(index), value, elements))
             }}
             onDelete={() => {
               setElements(remove(index, 1, elements))
             }}
+            contractAddress={contractAddress}
           />
         ))}
       </VStack>
-      <Button onClick={handleAddNFT}>Add NFT</Button>
+      {!contractAddress && (
+        <Box marginY={30}>
+          <Button onClick={handleAddNFT}>Add NFT</Button>
+        </Box>
+      )}
     </Container>
   )
 }
