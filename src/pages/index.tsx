@@ -38,10 +38,22 @@ const Index = () => {
         elements,
       ),
     )
+    ga.event({
+      action: 'added-nft',
+      params: {
+        nft_count: elements.length,
+      },
+    })
   }
 
   const handleMint = async () => {
     try {
+      ga.event({
+        action: 'mint',
+        params: {
+          nft_count: elements.length,
+        },
+      })
       if (elements.length === 0) {
         return toast({
           title: 'No NFTs to mint',
@@ -71,7 +83,7 @@ const Index = () => {
       ga.event({
         action: 'mint-started',
         params: {
-          elements: elements.length,
+          nft_count: elements.length,
         },
       })
 
@@ -138,6 +150,10 @@ const Index = () => {
   }
 
   const handleNewCollection = () => {
+    ga.event({
+      action: 'new-collection',
+      params: {},
+    })
     setElements([])
     setContractAddress(null)
     setIsMinting(false)
