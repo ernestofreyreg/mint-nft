@@ -16,7 +16,7 @@ import {
 import * as React from 'react'
 import { useAccount, useConnect } from 'wagmi'
 import { WalletLogo } from './WalletLogo'
-
+import * as ga from '../lib/ga'
 interface WalletOptionsModalProps {
   isOpen: boolean
   onClose: () => void
@@ -33,6 +33,12 @@ export const WalletOptionsModal: React.FC<WalletOptionsModalProps> = ({
 
   React.useEffect(() => {
     if (accountData) {
+      ga.event({
+        action: 'wallet-connected',
+        params: {
+          wallet: accountData.connector.name,
+        },
+      })
       onClose()
     }
   }, [accountData, onClose])

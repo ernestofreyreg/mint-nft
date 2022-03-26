@@ -2,6 +2,7 @@ import { Box, Button, Flex, Progress, Text } from '@chakra-ui/react'
 import * as React from 'react'
 import { useAccount, useNetwork } from 'wagmi'
 import { WalletOptionsModal } from './WalletOptionsModal'
+import * as ga from '../lib/ga'
 
 interface TopBarProps {
   onMint: () => void
@@ -21,6 +22,14 @@ export const TopBar: React.FC<TopBarProps> = ({
   const [isWalletModalOpen, setIsWalletModalOpen] = React.useState(false)
   const [{ data: accountData }, disconnect] = useAccount()
   const [{ data: networkData }] = useNetwork()
+
+  const handleDisconnect = () => {
+    ga.event({
+      action: 'wallet-disconnected',
+      params: {},
+    })
+    disconnect()
+  }
 
   return (
     <Flex
@@ -63,7 +72,7 @@ export const TopBar: React.FC<TopBarProps> = ({
       )}
       <Box>
         {accountData ? (
-          <Button size='sm' onClick={disconnect}>
+          <Button size='sm' onClick={handleDisconnect}>
             Disconnect {accountData.address.substring(0, 6)}...
           </Button>
         ) : (

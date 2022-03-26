@@ -52,6 +52,7 @@ const Index = () => {
         action: 'mint',
         params: {
           nft_count: elements.length,
+          chain: networkData?.chain?.name ?? 'unknown',
         },
       })
       if (elements.length === 0) {
@@ -84,6 +85,7 @@ const Index = () => {
         action: 'mint-started',
         params: {
           nft_count: elements.length,
+          chain: networkData?.chain?.name ?? 'unknown',
         },
       })
 
@@ -117,7 +119,9 @@ const Index = () => {
       // Track Mint
       ga.event({
         action: 'mint-succeed',
-        params: {},
+        params: {
+          chain: networkData?.chain?.name ?? 'unknown',
+        },
       })
       toast({
         title: 'Success',
