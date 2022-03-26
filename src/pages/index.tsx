@@ -15,6 +15,7 @@ import axios from 'axios'
 import MintNFTContract from '../MintNFT.json'
 import { useNetwork, useSigner } from 'wagmi'
 import { ContractFactory } from 'ethers'
+import * as ga from '../lib/ga'
 
 const Index = () => {
   const [elements, setElements] = React.useState<NFTElementData[]>([])
@@ -66,6 +67,13 @@ const Index = () => {
 
       setIsMinting(true)
       setProgress({ total: 0, current: 0 })
+      // Track Mint
+      ga.event({
+        action: 'mint-started',
+        params: {
+          elements: elements.length,
+        },
+      })
 
       // Upload files
       const formData = new FormData()
@@ -94,6 +102,11 @@ const Index = () => {
         elements.map(element => element.quantity),
       )
       await nft.deployed()
+      // Track Mint
+      ga.event({
+        action: 'mint-succeed',
+        params: {},
+      })
       toast({
         title: 'Success',
         description: `Your NFT Collection was minted with ${elements.length} NFTs`,
@@ -104,6 +117,13 @@ const Index = () => {
       })
       setContractAddress(nft.address)
     } catch (ex) {
+      // Track Mint
+      ga.event({
+        action: 'mint-error',
+        params: {
+          error: ex.message,
+        },
+      })
       toast({
         title: 'Error',
         description: ex.message,
