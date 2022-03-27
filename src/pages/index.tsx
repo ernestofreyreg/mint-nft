@@ -179,6 +179,7 @@ const Index = () => {
             value={item}
             index={index}
             isTestnet={networkData?.chain?.testnet}
+            isPolygon={networkData?.chain?.nativeCurrency?.symbol === 'MATIC'}
             onChange={(value: NFTElementData) => {
               setElements(set(lensIndex(index), value, elements))
             }}

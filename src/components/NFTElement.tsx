@@ -23,6 +23,7 @@ interface NFTElementProps {
   contractAddress?: string
   index: number
   isTestnet?: boolean
+  isPolygon?: boolean
 }
 
 export const NFTElement: React.FC<NFTElementProps> = ({
@@ -32,6 +33,7 @@ export const NFTElement: React.FC<NFTElementProps> = ({
   contractAddress,
   index,
   isTestnet,
+  isPolygon,
 }) => {
   return (
     <SimpleGrid columns={{ sm: 1, md: 2 }} gap={2} width='100%'>
@@ -95,9 +97,9 @@ export const NFTElement: React.FC<NFTElementProps> = ({
             <Link
               isExternal
               color='blue.500'
-              href={`https://${
-                isTestnet ? 'testnets.' : ''
-              }opensea.io/assets/${contractAddress}/${index}`}
+              href={`https://${isTestnet ? 'testnets.' : ''}opensea.io/assets/${
+                isPolygon ? 'matic/' : ''
+              }${contractAddress}/${index}`}
             >
               View on OpenSea <ExternalLinkIcon mx={2} />
             </Link>
